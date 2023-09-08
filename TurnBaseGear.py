@@ -12,7 +12,7 @@ if __name__ == '__main__':
     from gear.battle.battle import Battle
     from gear.battle.battleProcessor import BattleProcessor
 
-    from ui.battle.battleWindow import BattleWindow
+    from examples.pokemon_like_Qt.ui.battle import BattleWindow
 
     from PyQt5.QtWidgets import QApplication
 
