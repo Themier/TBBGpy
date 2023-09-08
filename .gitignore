@@ -3,3 +3,4 @@
 demo.py
 *.pyproj
 *.sln
+__pycache__
