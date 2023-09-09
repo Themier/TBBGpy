@@ -20,6 +20,7 @@ from gear.battle.battle import Battle
 from gear.battle.move import Move
 from gear.battle.battleGroup import BattleGroup
 from gear.battle.battleUnit import BattleUnit
+from gear.battle.battleNumeric import BattleNumeric
 from gear.battle.battleProcessor import BattleProcessor
 from gear.battle.battleCaculator import BattleCalculator
 
@@ -41,6 +42,8 @@ class BattleWindow(QWidget):
         super().__init__(parent=parent, flags=flags)
 
         self.theBattle = None
+        self.leftGroup = None
+        self.rightGroup = None
         self.activedPlayerControlingRoles = []
         self.movedActivedPlayerControlingRoles = []
         self.focusedRole = None
@@ -51,6 +54,8 @@ class BattleWindow(QWidget):
         self.moveBox = None
         self.choiceBox = None
         self.leftOptLayout = QStackedLayout()
+
+        self.switching = False
 
         self.rightOptBox = None
 
@@ -125,6 +130,8 @@ class BattleWindow(QWidget):
         SignTower.ins.Regist('ui技能选中目标', self.MoveTargetGot)
         SignTower.ins.Regist('ui战斗结束', self.close)
         SignTower.ins.Regist('战斗消息', self.msgBox.AddMsg)
+        SignTower.ins.Regist('阵营需要设定活跃角色', self.HandleGroupSwitch)
+        SignTower.ins.Regist('ui切换角色', self.PlayerSwitch)
         
         BattleWindow.ins = self
         self.show()
@@ -509,6 +516,8 @@ class BattleWindow(QWidget):
         '''
         if self.CheckOver():
             return
+        if self.switching:
+            return
 
         BattleProcessor.ins.NewTurn()
 
@@ -576,39 +585,101 @@ class BattleWindow(QWidget):
         return
 
 
+    def Switch(self, backRole:BattleUnit, aheadRole: BattleUnit):
+        '''
+        '''
+        self.RemoveHpBar(backRole)
+        self.theBattle.ins.UnsetActiveRole(backRole['id'])
+        self.AddHpBar(aheadRole)
+        self.theBattle.ins.SetActiveRole(aheadRole['id'])
+
+
+    def PlayerSwitch(self, backRole:BattleUnit, aheadRole: BattleUnit):
+        '''
+        '''
+        self.Switch(backRole, aheadRole)
+        self.switching = False
+        self.NewTurn()
+        return
+
+    
+    def HandleGroupSwitch(self, groupId):
+        '''
+        '''
+        if groupId == self.rightGroup['id']:
+            backRole = None
+            aheadRole = None
+            for roleId in Battle.ins.GetRoles(groupId):
+                role = Battle.ins.GetBattleUnit(roleId)
+                if Battle.ins.RoleIsActived(roleId):
+                    backRole = role
+                elif BattleNumeric.Count('alive', role):
+                    aheadRole = role
+                if backRole != None and aheadRole != None:
+                    self.Switch(backRole, aheadRole)
+                    return
+        else:
+            backRole = None
+            aheadableRoles = []
+            for roleId in Battle.ins.GetRoles(groupId):
+                role = Battle.ins.GetBattleUnit(roleId)
+                if Battle.ins.RoleIsActived(roleId):
+                    backRole = role
+                elif BattleNumeric.Count('alive', role):
+                    aheadableRoles.append(role)
+            self.FillChoiceBox([r['名字'] for r in aheadableRoles], 'ui切换角色', [(backRole, aheadRole) for aheadRole in aheadableRoles])
+            self.ShowChoiceBox()
+            self.switching = True
+        return    
+
+
+    def AddHpBar(self, role:BattleUnit):
+        '''
+        '''
+        hpBar = PercentBar(role['最大Hp'], 100, 20)
+        hpBar.ChangeValue(role['hp'])
+        leftOrRight = 'left' if Battle.ins.GetGroupOfRole(role['id']) == self.leftGroup['id'] else 'right'
+        barBox = self.leftHpBarBox if leftOrRight == 'left' else self.rightHpBarBox
+        barBox.layout().addWidget(hpBar)
+        self.activedRoleHpBarDict[role['id']] = hpBar
+
+
+    def RemoveHpBar(self, role:BattleUnit):
+        '''
+        '''
+        hpBar = self.activedRoleHpBarDict.pop(role['id'])
+        leftOrRight = 'left' if Battle.ins.GetGroupOfRole(role['id']) == self.leftGroup['id'] else 'right'
+        barBox = self.leftHpBarBox if leftOrRight == 'left' else self.rightHpBarBox
+        barBox.layout().removeWidget(hpBar)
+        
+
+
     def StartBattle(self): 
         if self.theBattle != None:
             return
         
-        leftGroup = BattleGroup({'名字':'红方'})
-        rightGroup = BattleGroup({'名字':'蓝方'})
-        leftFirstRole = BattleUnit({'名字':'红1', '技能':['击打', '自愈', '魔法火焰'], 'hp':250, '最大Hp':250, 'AIType':None})
+        self.leftGroup = BattleGroup({'名字':'红方'})
+        self.rightGroup = BattleGroup({'名字':'蓝方'})
+        leftFirstRole = BattleUnit({'名字':'红1', '技能':['击打', '自愈', '魔法火焰'], 'hp':2, '最大Hp':250, 'AIType':None})
         leftRole2 = BattleUnit({'名字':'红2', '技能':['击打'], 'hp':50, '最大Hp':50, 'AIType':None})
-        rightFirstRole = BattleUnit({'名字':'蓝1', '技能':['击打', '鬼火'], 'hp':100, '最大Hp':100, '速度':11})
+        rightFirstRole = BattleUnit({'名字':'蓝1', '技能':['击打'], 'hp':100, '最大Hp':100, '速度':9})
         battle = Battle.ins
-        battle.AddGroup(leftGroup)
-        battle.AddGroup(rightGroup)
-        battle.AddRole(leftFirstRole, leftGroup['id'])
-        battle.AddRole(leftRole2, leftGroup['id'])
-        battle.AddRole(rightFirstRole, rightGroup['id'])
+        battle.AddGroup(self.leftGroup)
+        battle.AddGroup(self.rightGroup)
+        battle.AddRole(leftFirstRole, self.leftGroup['id'])
+        battle.AddRole(leftRole2, self.leftGroup['id'])
+        battle.AddRole(rightFirstRole, self.rightGroup['id'])
         battle.SetActiveRole(leftFirstRole['id'])
         battle.SetActiveRole(rightFirstRole['id'])
 
         self.theBattle = battle
 
         for roleId in self.theBattle['activedRoles']:
-            if roleId in leftGroup['roles']:
-                role = Battle.ins.GetBattleUnit(roleId)
-                hpBar = PercentBar(role['最大Hp'], 100, 20)
-                hpBar.ChangeValue(role['hp'])
-                self.leftHpBarBox.layout().addWidget(hpBar)
-                self.activedRoleHpBarDict[role['id']] = hpBar
-            elif roleId in rightGroup['roles']:
-                role = Battle.ins.GetBattleUnit(roleId)
-                hpBar = PercentBar(role['最大Hp'], 100, 20)
-                hpBar.ChangeValue(role['hp'])
-                self.rightHpBarBox.layout().addWidget(hpBar)
-                self.activedRoleHpBarDict[role['id']] = hpBar
+            role = Battle.ins.GetBattleUnit(roleId)
+            if roleId in self.leftGroup['roles']:
+                self.AddHpBar(role)
+            elif roleId in self.rightGroup['roles']:
+                self.AddHpBar(role)
         
         self.NewTurn()
         return

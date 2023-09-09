@@ -126,12 +126,12 @@ class Battle(Dict[str, object]):
         '''
         '''
         if self.RoleIsActived(roleId):
-            self.GetActivedRoles().remove(roleId)
+            self['activedRoles'].remove(roleId)
 
         return
 
 
-    def GetGroup(self, roleId:str, *a, **k)->str:
+    def GetGroupOfRole(self, roleId:str, *a, **k)->str:
         '''
         返回指定角色所属的阵营
         '''

@@ -35,7 +35,9 @@ class SpeedLine(Dict[float, List[Tuple]]):
     def Sort(self, key:Callable[[tuple], object]=None):
         '''
         '''
-        self = dict(sorted(self.items(), key=key))
+        dt = dict(sorted(self.items(), key=key))
+        self.clear()
+        self.update(dt)
         for weight in self:
             random.shuffle(self[weight])
         return 

@@ -3,6 +3,7 @@ from typing import Dict, List, Callable
 from ..battle import Battle
 from ..battleUnit import BattleUnit
 from ..battleNumeric import BattleNumeric
+from ..battleCaculator import BattleCalculator
 from ..signTower import SignTower
 
 
@@ -30,6 +31,18 @@ class TurnEndAction(Dict[str, object]):
             act.Action()
 
         return
+
+   
+def TESwitch():
+    '''
+    '''
+    for groupId in BattleCalculator.AllActivedGroups():
+        if BattleCalculator.ActivedAliveRoleNumInGroup(groupId) > 0:
+            continue
+        if BattleCalculator.UnactivedAliveRoleNumInGroup(groupId) >0:
+            SignTower.ins.Push('阵营需要设定活跃角色', groupId)
+    return
+TurnEndAction(TESwitch)
 
    
 def TEClearProtect():

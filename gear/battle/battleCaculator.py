@@ -35,6 +35,41 @@ class BattleCalculator():
 
 
     @classmethod
+    def AllActivedGroups(self)->List[str]:
+        '''
+        '''
+        gs = []
+        for roleId in Battle.ins['activedRoles']:
+            gid = Battle.ins.GetGroupOfRole(roleId)
+            if not gid in gs:
+                gs.append(gid)
+
+        return gs
+
+    
+    @classmethod
+    def ActivedAliveRoleNumInGroup(self, groupId:str)->int:
+        '''
+        '''
+        n=0
+        for roleId in Battle.ins['activedRoles']:
+            if Battle.ins.GetGroupOfRole(roleId) == groupId and BattleNumeric.Count('alive', Battle.ins.GetBattleUnit(roleId)):
+                n+=1
+        return n
+
+    
+    @classmethod
+    def UnactivedAliveRoleNumInGroup(self, groupId:str)->int:
+        '''
+        '''
+        n=0
+        for roleId in Battle.ins.GetRoles(groupId):
+            if (not roleId in Battle.ins['activedRoles']) and BattleNumeric.Count('alive', Battle.ins.GetBattleUnit(roleId)):
+                n+=1
+        return n
+
+
+    @classmethod
     def CountDamagePoint(self, atker:BattleUnit, dfcer:BattleUnit, power:int)->int:
         '''
         '''
@@ -66,7 +101,7 @@ class BattleCalculator():
             return []
         elif selectRule == 'enermy':
             targets = []
-            for groupId in Battle.ins.GetOtherGroups(Battle.ins.GetGroup(moverId)):
+            for groupId in Battle.ins.GetOtherGroups(Battle.ins.GetGroupOfRole(moverId)):
                 for roleId in Battle.ins['groupDict'][groupId]['roles']:
                     if roleId in Battle.ins.GetActivedRoles():
                         role = Battle.ins.GetBattleUnit(roleId)
@@ -75,7 +110,7 @@ class BattleCalculator():
             return targets
         elif selectRule == 'aly':
             targets = []
-            for roleId in Battle.ins['groupDict'][Battle.ins.GetGroup(moverId)]['roles']:
+            for roleId in Battle.ins['groupDict'][Battle.ins.GetGroupOfRole(moverId)]['roles']:
                     if roleId in Battle.ins.GetActivedRoles():
                         if roleId != moverId:
                             role = Battle.ins.GetBattleUnit(roleId)
@@ -84,7 +119,7 @@ class BattleCalculator():
             return targets
         elif selectRule == 'our':
             targets = []
-            for roleId in Battle.ins['groupDict'][Battle.ins.GetGroup(moverId)]['roles']:
+            for roleId in Battle.ins['groupDict'][Battle.ins.GetGroupOfRole(moverId)]['roles']:
                     if roleId in Battle.ins.GetActivedRoles():
                         role = Battle.ins.GetBattleUnit(roleId)
                         if role!= None and BattleNumeric.Count('canBeChoiced', role):

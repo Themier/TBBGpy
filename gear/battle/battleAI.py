@@ -43,7 +43,7 @@ def BANormal(moverId:str)->tuple:
         return None
     theSkillId = ''
     theTargetId = ''
-    maxWeight = -999.0
+    theWeight = -999.0
     for skillId in skills:
         skill = Move.moveDict[skillId]
         weight = 0.0
@@ -53,12 +53,14 @@ def BANormal(moverId:str)->tuple:
             weight = MoveEffect.CountWeight(effect, mover, target, skill)
         else:
             targets = BattleCalculator.GetAllPossibleTargets(skill['目标类型'], moverId)
+            if len(targets) == 0:
+                return None
             for target in targets:
                 target = Battle.ins.GetBattleUnit(target)
                 effect = skill['效果']
                 weight = MoveEffect.CountWeight(effect, mover, target, skill)
-        if weight > maxWeight:
-            maxWeight = weight
+        if weight > theWeight:
+            theWeight = weight
             theSkillId = skillId
             if target != None:
                 theTargetId = target['id']
