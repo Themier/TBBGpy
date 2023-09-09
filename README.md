@@ -1,5 +1,11 @@
 # TBBGpy
 Turn Based Battle Gear with python
+# 目录
+* [简介](https://github.com/Themier/TBBGpy/blob/main/README.md#%E7%AE%80%E4%BB%8B)
+* [项目结构](https://github.com/Themier/TBBGpy/blob/main/README.md#%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84)
+* [安装和运行](https://github.com/Themier/TBBGpy/blob/main/README.md#%E5%AE%89%E8%A3%85%E5%92%8C%E8%BF%90%E8%A1%8C)
+* [文档和帮助](https://github.com/Themier/TBBGpy/blob/main/README.md#%E6%96%87%E6%A1%A3%E5%92%8C%E5%B8%AE%E5%8A%A9)
+* [未来计划](https://github.com/Themier/TBBGpy/blob/main/README.md#%E6%9C%AA%E6%9D%A5%E8%AE%A1%E5%88%92)
 # 简介
 ## TBBG
 TBBG 是一个回合制战斗系统框架项目，TBBG 的目标是实现一个通用的回合制战斗框架，在这个框架的基础上，使用者可以轻易地快速实现任何规则下的回合制战斗的核心模块代码，并实现逻辑与 ui 分离。  
