@@ -45,6 +45,20 @@ class BattleCalculator():
 
 
     @classmethod
+    def RandomCheck(self, normalisedProbability:float):
+        '''
+        '''
+        return random.uniform(0,1) < normalisedProbability
+
+
+    @classmethod
+    def CheckMoveScore(self, move:Dict[str, object]):
+        '''
+        '''
+        return self.RandomCheck(move['命中率'] / 100.0)
+
+
+    @classmethod
     def GetAllPossibleTargets(self, selectRule:str, moverId:str)->List:
         '''
         '''

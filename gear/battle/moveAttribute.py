@@ -11,7 +11,7 @@ class MoveAttribute(Dict[str, object]):
     defaultValues:Dict[str, object] = {}
 
 
-    def __init__(self, id:str, name:str, desc, defaultValue, min=None, max=None):
+    def __init__(self, id:str, name:str, desc, defaultValue):
         '''
         '''
         super().__init__()
@@ -22,19 +22,20 @@ class MoveAttribute(Dict[str, object]):
         self.min = min
         self.max = max
         
-        BattleUnitAttribute.inses[id] = self
-        BattleUnitAttribute.defaultValues[id] = self.defaultValue
+        MoveAttribute.inses[self.id] = self
+        MoveAttribute.defaultValues[self.id] = self.defaultValue
         return
 
 
 MoveAttribute('id', 'id', '', '未定义')
 MoveAttribute('名字', '名字', '', '未命名')
-MoveAttribute('描述', '描述', '', 10, 0, 99999)
-MoveAttribute('效果', '效果', '', 100, 0, 99999)
-MoveAttribute('威力', '威力', '', 100, 0, 99999)
-MoveAttribute('效果参数', '效果参数', '', 0, -6, 6)
-MoveAttribute('类型', '类型', '', 0, -6, 6)
-MoveAttribute('目标类型', '目标类型', '', '未命名')
-MoveAttribute('ai目标类型', 'ai目标类型', '', '正常')
-MoveAttribute('接触', '接触', '', [])
-MoveAttribute('先制等级', '先制等级', '', False)
+MoveAttribute('描述', '描述', '', '')
+MoveAttribute('效果', '效果', '', '')
+MoveAttribute('威力', '威力', '', 0)
+MoveAttribute('效果参数', '效果参数', '', 0.0)
+MoveAttribute('类型', '类型', '', 'hit')
+MoveAttribute('目标类型', '目标类型', '', 'enermy')
+MoveAttribute('ai目标类型', 'ai目标类型', '', 'enermy')
+MoveAttribute('接触', '接触', '', False)
+MoveAttribute('先制等级', '先制等级', '', 0)
+MoveAttribute('命中率', '命中率', '', 100)

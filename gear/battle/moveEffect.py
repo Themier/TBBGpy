@@ -1,4 +1,5 @@
 
+import random
 from typing import Dict, List, Callable
 from .battleUnit import BattleUnit
 from .battleNumeric import BattleNumeric
@@ -44,13 +45,16 @@ def singleHit(user:BattleUnit, target:BattleUnit, move:Dict[str, object])->None:
     '''
     '''
     if BattleNumeric.Count('canHit', user) and BattleNumeric.Count('canBeHited', target):
-        BeforeAttackedAction.Action(target)
-        damage = BattleCalculator.CountDamagePoint(user, target, move['威力'])
-        target.SetValue('hp', target.get('hp')-damage, target['最大Hp'], 0)
-        SignTower.ins.Push('战斗消息','{} 受到了 {} 点伤害'.format(target['名字'], damage))
-        target.SetValue('最后受伤值', damage)
-        target.SetValue('最后受伤来自', user['id'])
-        AfterAttackedAction.Action(target)
+        if BattleCalculator.CheckMoveScore(move):
+            BeforeAttackedAction.Action(target)
+            damage = BattleCalculator.CountDamagePoint(user, target, move['威力'])
+            target.SetValue('hp', target.get('hp')-damage, target['最大Hp'], 0)
+            SignTower.ins.Push('战斗消息','{} 受到了 {} 点伤害'.format(target['名字'], damage))
+            target.SetValue('最后受伤值', damage)
+            target.SetValue('最后受伤来自', user['id'])
+            AfterAttackedAction.Action(target)
+        else:
+            SignTower.ins.Push('战斗消息','未命中')
     else:
         SignTower.ins.Push('战斗消息','{} 因保护而免受伤害'.format(target['名字']))
     return
@@ -105,15 +109,18 @@ def singleHitDownTargetAttack(user:BattleUnit, target:BattleUnit, move:Dict[str,
     '''
     '''
     if BattleNumeric.Count('canHit', user) and BattleNumeric.Count('canBeHited', target):
-        BeforeAttackedAction.Action(target)
-        damage = BattleCalculator.CountDamagePoint(user, target, move['威力'])
-        target.SetValue('hp', target.get('hp')-damage, target['最大Hp'], 0)
-        SignTower.ins.Push('战斗消息','{} 受到了 {} 点伤害'.format(target['名字'], int(damage)))
-        target.SetValue('攻击等级', target['攻击等级']-int(move['效果参数']), 6, -6)
-        SignTower.ins.Push('战斗消息','{} 攻击等级降低为 {}'.format(target['名字'], int(target['攻击等级'])))
-        target.SetValue('最后受伤值', damage)
-        target.SetValue('最后受伤来自', user['id'])
-        AfterAttackedAction.Action(target)
+        if BattleCalculator.CheckMoveScore(move):
+            BeforeAttackedAction.Action(target)
+            damage = BattleCalculator.CountDamagePoint(user, target, move['威力'])
+            target.SetValue('hp', target.get('hp')-damage, target['最大Hp'], 0)
+            SignTower.ins.Push('战斗消息','{} 受到了 {} 点伤害'.format(target['名字'], int(damage)))
+            target.SetValue('攻击等级', target['攻击等级']-int(move['效果参数']), 6, -6)
+            SignTower.ins.Push('战斗消息','{} 攻击等级降低为 {}'.format(target['名字'], int(target['攻击等级'])))
+            target.SetValue('最后受伤值', damage)
+            target.SetValue('最后受伤来自', user['id'])
+            AfterAttackedAction.Action(target)
+        else:
+            SignTower.ins.Push('战斗消息','未命中')
     else:
         SignTower.ins.Push('战斗消息','{} 因保护而免受伤害'.format(target['名字']))
     return
@@ -136,11 +143,14 @@ def singleBurn(user:BattleUnit, target:BattleUnit, move:Dict[str, object])->None
     '''
     '''
     if BattleNumeric.Count('canHit', user) and BattleNumeric.Count('canBeHited', target):
-        if not BattleNumeric.Count('bured', target):
-            target.SetValue('烧伤', True)
-            SignTower.ins.Push('战斗消息','{} 被烧伤了'.format(target['名字']))
+        if BattleCalculator.CheckMoveScore(move):
+            if not BattleNumeric.Count('bured', target):
+                target.SetValue('烧伤', True)
+                SignTower.ins.Push('战斗消息','{} 被烧伤了'.format(target['名字']))
+            else:
+                SignTower.ins.Push('战斗消息','{} 受到保护'.format(target['名字']))
         else:
-            SignTower.ins.Push('战斗消息','{} 受到保护'.format(target['名字']))
+            SignTower.ins.Push('战斗消息','未命中')
     return
 def singleBurnWeight(user:BattleUnit, target:BattleUnit, move:Dict[str, object])->float:
     '''
