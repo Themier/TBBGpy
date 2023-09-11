@@ -660,9 +660,9 @@ class BattleWindow(QWidget):
         
         self.leftGroup = BattleGroup({'名字':'红方'})
         self.rightGroup = BattleGroup({'名字':'蓝方'})
-        leftFirstRole = BattleUnit({'名字':'红1', '技能':['击打', '自愈', '魔法火焰'], 'hp':2, '最大Hp':250, 'AIType':None})
+        leftFirstRole = BattleUnit({'名字':'红1', '技能':['击打', '自愈', '魔法火焰'], 'hp':250, '最大Hp':250, 'AIType':None})
         leftRole2 = BattleUnit({'名字':'红2', '技能':['击打'], 'hp':50, '最大Hp':50, 'AIType':None})
-        rightFirstRole = BattleUnit({'名字':'蓝1', '技能':['击打'], 'hp':100, '最大Hp':100, '速度':9})
+        rightFirstRole = BattleUnit({'名字':'蓝1', '技能':['击打','保护','鬼火'], 'hp':100, '最大Hp':100, '速度':9})
         battle = Battle.ins
         battle.AddGroup(self.leftGroup)
         battle.AddGroup(self.rightGroup)
