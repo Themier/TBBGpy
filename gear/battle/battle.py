@@ -34,8 +34,12 @@ class Battle(Dict[str, object]):
             Battle.ins = self
 
             self['roleDict']:Dict[str, BattleUnit] = {}
-            self['activedRoles']:List[str] = []
             self['groupDict']:Dict[str, BattleGroup] = {}
+
+            self['activedNumPerSide'] = 1
+            self['activedGroups'] = []
+            self['activedRoles']:List[str] = []
+            self['activedRolesLocation'] = {}
 
         return
 
